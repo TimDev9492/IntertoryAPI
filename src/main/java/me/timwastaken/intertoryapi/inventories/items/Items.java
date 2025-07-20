@@ -19,6 +19,18 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class Items {
+    public static class NoItem extends IntertoryItem {
+        @Override
+        public ItemStack getStack() {
+            return null;
+        }
+
+        @Override
+        public void process(InventoryClickEvent event) {
+            // do nothing
+        }
+    }
+
     public static class FromItemStack extends IntertoryItem {
         private final ItemStack stack;
 

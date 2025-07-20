@@ -1,8 +1,10 @@
 package me.timwastaken.intertoryapi.inventories;
 
 import me.timwastaken.intertoryapi.common.UniqueHolder;
+import me.timwastaken.intertoryapi.common.Vector2;
 import me.timwastaken.intertoryapi.inventories.items.IntertoryItem;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 
@@ -37,11 +39,8 @@ public class Intertory {
                     this.title
             );
 
-        for (int y = 0; y < this.content.getSize().getY(); y++) {
-            for (int x = 0; x < this.content.getSize().getX(); x++) {
-                int slot = this.content.getSize().getY() * x + y;
-                this.instance.setItem(slot, Optional.ofNullable(items.get(slot)).map(IntertoryItem::getStack).orElse(null));
-            }
+        for (int slot : this.content.getSlots()) {
+            this.instance.setItem(slot, Optional.ofNullable(items.get(slot)).map(IntertoryItem::getStack).orElse(null));
         }
     }
 
@@ -58,5 +57,9 @@ public class Intertory {
 
     private void updateItemCache() {
         this.cache = this.content.getItems();
+    }
+
+    public void openFor(Player p) {
+        p.openInventory(this.getInventory());
     }
 }

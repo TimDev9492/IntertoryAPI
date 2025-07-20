@@ -2,6 +2,8 @@ package me.timwastaken.intertoryapi.common;
 
 import me.timwastaken.intertoryapi.IntertoryAPI;
 
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Vector2<T> {
@@ -33,6 +35,16 @@ public class Vector2<T> {
 
     @Override
     public int hashCode() {
+        if (x instanceof Integer xInt && y instanceof Integer yInt) return Objects.hash(xInt, yInt);
         return this.ident.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj instanceof Vector2<?> other) {
+            return Objects.equals(other.getX(), x) && Objects.equals(other.getY(), y);
+        }
+        return false;
     }
 }

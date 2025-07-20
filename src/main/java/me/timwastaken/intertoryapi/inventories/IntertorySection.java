@@ -1,12 +1,11 @@
 package me.timwastaken.intertoryapi.inventories;
 
+import me.timwastaken.intertoryapi.common.SlotUtils;
 import me.timwastaken.intertoryapi.common.Vector2;
 import me.timwastaken.intertoryapi.inventories.items.IntertoryItem;
+import me.timwastaken.intertoryapi.inventories.items.Items;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class IntertorySection {
     private final List<IntertorySection> children;
@@ -14,6 +13,7 @@ public class IntertorySection {
     // the position of the child inside the parent
     private Vector2<Integer> position;
     protected final Vector2<Integer> size;
+    protected List<Integer> slots;
 
     public IntertorySection(int width, int height) {
         this(new Vector2<>(width, height));
@@ -22,6 +22,8 @@ public class IntertorySection {
     public IntertorySection(Vector2<Integer> size) {
         this.position = new Vector2<>(0, 0);
         this.size = size;
+        this.slots = new ArrayList<>(size.getX() * size.getY());
+        for (int i = 0; i < size.getX() * size.getY(); i++) this.slots.add(i);
         this.children = new ArrayList<>();
         this.ownedItems = new HashMap<>();
     }
@@ -56,9 +58,10 @@ public class IntertorySection {
 
     public Map<Integer, IntertoryItem> getItems() {
         Map<Integer, IntertoryItem> items = new HashMap<>();
-        for (Map.Entry<Vector2<Integer>, IntertoryItem> slotItems : this.getItems(null).entrySet()) {
+        Map<Vector2<Integer>, IntertoryItem> selfItems = this.getItems(null);
+        for (Map.Entry<Vector2<Integer>, IntertoryItem> slotItems : selfItems.entrySet()) {
             Vector2<Integer> slotXY = slotItems.getKey();
-            items.put(slotXY.getY() * this.size.getX() + slotXY.getX(), slotItems.getValue());
+            items.put(SlotUtils.toSlot(slotXY, this.size), slotItems.getValue());
         }
         return items;
     }
@@ -67,8 +70,13 @@ public class IntertorySection {
         return this.ownedItems.put(slot, item);
     }
 
-    public void appendChildAt(IntertorySection section, int x, int y) {
-        this.appendChildAt(section, new Vector2<>(x, y));
+    public void setBackgroundItem(IntertoryItem item) {
+        for (int slot : this.getSlots()) {
+            Vector2<Integer> slotXY = SlotUtils.toSlotXY(slot, this.size);
+            if (!this.ownedItems.containsKey(slotXY)) {
+                this.ownedItems.put(slotXY, item);
+            }
+        }
     }
 
     public void appendChildAt(IntertorySection section, Vector2<Integer> position) {
@@ -86,5 +94,9 @@ public class IntertorySection {
 
     public Vector2<Integer> getSize() {
         return size;
+    }
+
+    public List<Integer> getSlots() {
+        return this.slots;
     }
 }

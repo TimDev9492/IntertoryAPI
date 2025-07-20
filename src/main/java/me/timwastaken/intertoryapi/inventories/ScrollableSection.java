@@ -3,6 +3,7 @@ package me.timwastaken.intertoryapi.inventories;
 import me.timwastaken.intertoryapi.common.Vector2;
 import me.timwastaken.intertoryapi.inventories.items.IntertoryItem;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +17,8 @@ public class ScrollableSection extends IntertorySection {
 
     public ScrollableSection(Vector2<Integer> size, Vector2<Integer> virtualSize) {
         super(size);
+        this.slots = new ArrayList<>(virtualSize.getX() * virtualSize.getY());
+        for (int i = 0; i < virtualSize.getX() * virtualSize.getY(); i++) this.slots.add(i);
         this.virtualSize = virtualSize;
         this.scrollOffset = new Vector2<>(0, 0);
     }
