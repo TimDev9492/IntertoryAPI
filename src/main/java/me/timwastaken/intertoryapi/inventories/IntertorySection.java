@@ -1,6 +1,7 @@
 package me.timwastaken.intertoryapi.inventories;
 
 import me.timwastaken.intertoryapi.common.Vector2;
+import me.timwastaken.intertoryapi.inventories.items.IntertoryItem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,9 +10,10 @@ import java.util.Map;
 
 public class IntertorySection {
     private final List<IntertorySection> children;
-    private final Map<Integer, IntertoryItem> ownedItems;
+    protected final Map<Vector2<Integer>, IntertoryItem> ownedItems;
+    // the position of the child inside the parent
     private Vector2<Integer> position;
-    private Vector2<Integer> size;
+    protected final Vector2<Integer> size;
 
     public IntertorySection(int width, int height) {
         this(new Vector2<>(width, height));
@@ -24,26 +26,62 @@ public class IntertorySection {
         this.ownedItems = new HashMap<>();
     }
 
+    protected Map<Vector2<Integer>, IntertoryItem> getView() {
+        return this.ownedItems;
+    }
+
     /**
      * Returns a map of all the items this section and all of its
      * children own.
      *
      * @return A map of all the items this section and its children own.
      */
-    private Map<Integer, IntertoryItem> getItems(IntertorySection parent) {
-        Map<Integer, IntertoryItem> items = new HashMap<>();
-        for (Map.Entry<Integer, IntertoryItem> ownedItem : this.ownedItems.entrySet()) {
-            int slot = ownedItem.getKey();
-            int parentSlot = parent != null ?
+    private Map<Vector2<Integer>, IntertoryItem> getItems(IntertorySection parent) {
+        Map<Vector2<Integer>, IntertoryItem> items = new HashMap<>();
+        Map<Vector2<Integer>, IntertoryItem> selfAndChildItems = new HashMap<>(this.getView());
+        for (IntertorySection child : this.children) {
+            selfAndChildItems.putAll(child.getItems(this));
         }
+        for (Map.Entry<Vector2<Integer>, IntertoryItem> ownedItem : selfAndChildItems.entrySet()) {
+            Vector2<Integer> slot = ownedItem.getKey();
+            Vector2<Integer> parentSlot;
+            if (parent == null) parentSlot = slot;
+            else {
+                parentSlot = new Vector2<>(this.position.getX() + slot.getX(), this.position.getY() + slot.getY());
+            }
+            items.put(parentSlot, ownedItem.getValue());
+        }
+        return items;
     }
 
     public Map<Integer, IntertoryItem> getItems() {
-        return this.getItems(null);
+        Map<Integer, IntertoryItem> items = new HashMap<>();
+        for (Map.Entry<Vector2<Integer>, IntertoryItem> slotItems : this.getItems(null).entrySet()) {
+            Vector2<Integer> slotXY = slotItems.getKey();
+            items.put(slotXY.getY() * this.size.getX() + slotXY.getX(), slotItems.getValue());
+        }
+        return items;
+    }
+
+    public IntertoryItem setItem(Vector2<Integer> slot, IntertoryItem item) {
+        return this.ownedItems.put(slot, item);
+    }
+
+    public void appendChildAt(IntertorySection section, int x, int y) {
+        this.appendChildAt(section, new Vector2<>(x, y));
+    }
+
+    public void appendChildAt(IntertorySection section, Vector2<Integer> position) {
+        section.setPosition(position);
+        this.children.add(section);
     }
 
     public Vector2<Integer> getPosition() {
         return position;
+    }
+
+    public void setPosition(Vector2<Integer> position) {
+        this.position = position;
     }
 
     public Vector2<Integer> getSize() {

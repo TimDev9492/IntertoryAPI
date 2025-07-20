@@ -2,3 +2,7 @@ name: IntertoryAPI
 version: '0.1.0'
 main: me.timwastaken.intertoryapi.IntertoryAPI
 api-version: '1.21'
+commands:
+  test:
+    description: Plugin test command
+    usage: test [args...]

@@ -1,0 +1,62 @@
+package me.timwastaken.intertoryapi.inventories;
+
+import me.timwastaken.intertoryapi.common.UniqueHolder;
+import me.timwastaken.intertoryapi.inventories.items.IntertoryItem;
+import org.bukkit.Bukkit;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.Inventory;
+
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
+public class Intertory {
+    private final String title;
+    private final UniqueHolder holder;
+    private final IntertorySection content;
+    private Map<Integer, IntertoryItem> cache;
+    private Inventory instance = null;
+
+    public Intertory(String title, IntertorySection section) {
+        this.title = title;
+        this.content = section;
+        this.holder = new UniqueHolder();
+        this.cache = section.getItems();
+        this.updateInventory(this.cache);
+    }
+
+    public Inventory getInventory() {
+        return this.instance;
+    }
+
+    private void updateInventory(Map<Integer, IntertoryItem> items) {
+        if (this.instance == null)
+            this.instance = Bukkit.createInventory(
+                    holder,
+                    content.getSize().getX() * content.getSize().getY(),
+                    this.title
+            );
+
+        for (int y = 0; y < this.content.getSize().getY(); y++) {
+            for (int x = 0; x < this.content.getSize().getX(); x++) {
+                int slot = this.content.getSize().getY() * x + y;
+                this.instance.setItem(slot, Optional.ofNullable(items.get(slot)).map(IntertoryItem::getStack).orElse(null));
+            }
+        }
+    }
+
+    public boolean representsInventory(Inventory inv) {
+        return Objects.equals(inv.getHolder(), this.holder);
+    }
+
+    public void process(InventoryClickEvent event) {
+        IntertoryItem item = this.cache.get(event.getSlot());
+        if (item != null) item.process(event);
+        this.updateItemCache();
+        this.updateInventory(this.cache);
+    }
+
+    private void updateItemCache() {
+        this.cache = this.content.getItems();
+    }
+}
