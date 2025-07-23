@@ -10,6 +10,47 @@ Add the IntertoryAPI JAR to your plugin's dependencies and include it in your `p
 depend: [IntertoryAPI]
 ```
 
+### Build system
+
+You can import the library using your preferred build system by using the JitPack maven repository
+(Replace `TAG` with your required version from [Tags](https://github.com/TimDev9492/IntertoryAPI/tags))
+
+#### Maven
+
+**Step 1.** Add the JitPack repository to your `pom.xml`
+```xml
+<repositories>
+  <repository>
+    <id>jitpack.io</id>
+    <url>https://jitpack.io</url>
+  </repository>
+</repositories>
+```
+**Step 2.** Add the dependency
+```xml
+<dependency>
+  <groupId>com.github.TimDev9492</groupId>
+  <artifactId>IntertoryAPI</artifactId>
+  <version>TAG</version>
+</dependency>
+```
+
+#### Gradle
+
+**Step 1.** Add the JitPack repository to your `pom.xml`
+```gradle
+repositories {
+  mavenCentral()
+  maven { url 'https://jitpack.io' }
+}
+```
+**Step 2.** Add the dependency
+```gradle
+dependencies {
+  implementation 'com.github.TimDev9492:IntertoryAPI:TAG'
+}
+```
+
 ## Getting started
 
 An `Intertory` (**Inter**active Inven**tory**) is made up of (optionally nested) sections that contain `IntertoryItem`.
