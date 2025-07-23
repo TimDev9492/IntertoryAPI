@@ -153,7 +153,7 @@ public class TestCommand implements CommandExecutor {
 
                 IntertorySection stickSection = new IntertoryBuilder(3, 3)
                         .withItem(1, 1, stick)
-                        .withBackground(Material.BROWN_STAINED_GLASS_PANE)
+//                        .withBackground(Material.BROWN_STAINED_GLASS_PANE)
                         .getSection();
                 IntertorySection stoneSection = new IntertoryBuilder(3, 3)
                         .withItem(1, 1, stone)
@@ -168,9 +168,10 @@ public class TestCommand implements CommandExecutor {
                         .addSection(0, 0, stickSection)
                         .addSection(3, 0, stoneSection)
                         .addSection(6, 0, paperSection)
+                        .withItem(0, 0, new Items.FromItemStack(new ItemBuilder(Material.STICK).name("DEBUG STICK").build()))
                         .getIntertory("My Simple Intertory");
 
-                gameConfigIntertory.openFor(p);
+                intertory.openFor(p);
             } catch (IllegalArgumentException e) {
                 p.sendMessage(ChatColor.RED + e.getMessage());
                 return false;

@@ -28,6 +28,25 @@ public class IntertorySection {
         this.ownedItems = new HashMap<>();
     }
 
+    /**
+     * Return the IntertorySection that owns the {@link IntertoryItem}
+     * @param item The {@link IntertoryItem}
+     * @return The owning section, or null if none is found
+     */
+    public IntertorySection getOwningSection(IntertoryItem item) {
+        // search through this section
+        for (IntertoryItem selfOwnedItem : this.ownedItems.values()) {
+            if (selfOwnedItem.equals(item)) return this;
+        }
+        // search through children
+        for (IntertorySection child : this.children) {
+            for (IntertoryItem childOwnedItem : child.ownedItems.values()) {
+                if (childOwnedItem.equals(item)) return child;
+            }
+        }
+        return null;
+    }
+
     protected Map<Vector2<Integer>, IntertoryItem> getView() {
         return this.ownedItems;
     }
@@ -68,6 +87,16 @@ public class IntertorySection {
 
     public IntertoryItem setItem(Vector2<Integer> slot, IntertoryItem item) {
         return this.ownedItems.put(slot, item);
+    }
+
+    public IntertoryItem removeItem(IntertoryItem item) {
+        for (Map.Entry<Vector2<Integer>, IntertoryItem> ownedItemWithSlot : this.ownedItems.entrySet()) {
+            IntertoryItem itemInSlot = ownedItemWithSlot.getValue();
+            if (itemInSlot.equals(item)) {
+                return this.ownedItems.remove(ownedItemWithSlot.getKey());
+            }
+        }
+        return null;
     }
 
     public void setBackgroundItem(IntertoryItem item) {

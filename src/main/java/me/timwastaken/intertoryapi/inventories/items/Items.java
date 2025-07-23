@@ -2,23 +2,35 @@ package me.timwastaken.intertoryapi.inventories.items;
 
 import me.timwastaken.intertoryapi.IntertoryAPI;
 import me.timwastaken.intertoryapi.common.BiFunctionTwoOutputs;
+import me.timwastaken.intertoryapi.common.IntertoryClickEvent;
 import me.timwastaken.intertoryapi.common.StringUtils;
+import me.timwastaken.intertoryapi.inventories.Intertory;
+import me.timwastaken.intertoryapi.inventories.IntertorySection;
 import me.timwastaken.intertoryapi.utils.IntertorySound;
 import me.timwastaken.intertoryapi.utils.ItemBuilder;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.AbstractMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class Items {
+    private static final Set<InventoryAction> ITEM_OUT_ACTIONS = new HashSet<>(Set.of(
+            InventoryAction.PICKUP_ONE,
+            InventoryAction.PICKUP_SOME,
+            InventoryAction.PICKUP_ALL,
+            InventoryAction.PICKUP_HALF,
+            InventoryAction.COLLECT_TO_CURSOR,
+            InventoryAction.DROP_ALL_SLOT,
+            InventoryAction.MOVE_TO_OTHER_INVENTORY
+    ));
+
     public static class NoItem extends IntertoryItem {
         @Override
         public ItemStack getStack() {
@@ -26,7 +38,7 @@ public class Items {
         }
 
         @Override
-        public void process(InventoryClickEvent event) {
+        public void process(InventoryClickEvent event, Intertory environment) {
             // do nothing
         }
     }
@@ -44,18 +56,29 @@ public class Items {
         }
 
         @Override
-        public void process(InventoryClickEvent event) {
-            // do nothing
+        public void process(InventoryClickEvent event, Intertory environment) {
+            if (ITEM_OUT_ACTIONS.contains(event.getAction())) {
+                // item leaves inventory
+                IntertorySection section = environment.getOwningSection(this);
+                section.removeItem(this);
+            }
         }
     }
 
-    public static class Placeholder extends FromItemStack {
+    public static class Placeholder extends IntertoryItem {
+        private final ItemStack stack;
+
         public Placeholder(ItemStack stack) {
-            super(stack);
+            this.stack = stack;
         }
 
         @Override
-        public void process(InventoryClickEvent event) {
+        public ItemStack getStack() {
+            return this.stack;
+        }
+
+        @Override
+        public void process(InventoryClickEvent event, Intertory environment) {
             event.setCancelled(true);
             IntertorySound.FAIL.playTo((Player) event.getWhoClicked());
         }
@@ -198,7 +221,7 @@ public class Items {
         }
 
         @Override
-        public void process(InventoryClickEvent event) {
+        public void process(InventoryClickEvent event, Intertory environment) {
             event.setCancelled(true);
             Map.Entry<T, ItemAction> result = this.stateTransform.apply(this.state, event.getClick());
             T next = result.getKey();
@@ -228,7 +251,7 @@ public class Items {
         }
 
         @Override
-        public void process(InventoryClickEvent event) {
+        public void process(InventoryClickEvent event, Intertory environment) {
             event.setCancelled(true);
             if (event.getClick().isLeftClick()) {
                 boolean success = this.action.get();

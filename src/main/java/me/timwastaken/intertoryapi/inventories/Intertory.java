@@ -48,14 +48,18 @@ public class Intertory {
         return Objects.equals(inv.getHolder(), this.holder);
     }
 
-    public void process(InventoryClickEvent event) {
+    public void process(InventoryClickEvent event, Intertory environment) {
         IntertoryItem item = this.cache.get(event.getSlot());
-        if (item != null) item.process(event);
+        if (item != null) item.process(event, environment);
         this.updateItemCache();
         this.updateInventory(this.cache);
     }
 
-    private void updateItemCache() {
+    public IntertorySection getOwningSection(IntertoryItem item) {
+        return this.content.getOwningSection(item);
+    }
+
+    public void updateItemCache() {
         this.cache = this.content.getItems();
     }
 
